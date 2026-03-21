@@ -2,31 +2,58 @@
 <html>
 <head>
     <title>Register</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f6f8fb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .form-control {
+            border-radius: 10px;
+        }
+
+        .btn-success {
+            border-radius: 10px;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Register</h2>
+<div class="container d-flex justify-content-center align-items-center" style="height:100vh;">
 
-<form method="POST">
+    <div class="card shadow p-4" style="width: 420px;">
 
-    <label>Username:</label><br>
-    <input type="text" name="username" required><br><br>
+        <h4 class="text-center mb-3">Create Account</h4>
+        <p class="text-center text-muted mb-4">Start your learning journey</p>
 
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
+        <form method="POST">
+            <input class="form-control mb-3" name="username" placeholder="Username" required>
+            <input class="form-control mb-3" name="password" type="password" placeholder="Password" required>
 
-    <label>Select Role:</label><br>
-    <select name="role">
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-    </select><br><br>
+            <select class="form-control mb-3" name="role">
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+            </select>
 
-    <button type="submit">Register</button>
-</form>
+            <button class="btn btn-success w-100">Register</button>
+        </form>
 
-<br>
-<p>Already have an account?</p>
-<a href="/login">Login Here</a>
+        <p class="text-center mt-3 text-muted">
+            Already have an account? <a href="/login">Login</a>
+        </p>
+
+    </div>
+
+</div>
 
 </body>
 </html>

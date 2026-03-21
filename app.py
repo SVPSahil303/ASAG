@@ -6,6 +6,8 @@ import sqlite3
 from sentence_transformers import SentenceTransformer
 from gensim.models.doc2vec import Doc2Vec
 from werkzeug.security import generate_password_hash, check_password_hash
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -309,13 +311,35 @@ def my_progress():
     SELECT question, score, similarity, feedback, timestamp
     FROM attempts
     WHERE username=?
-    ORDER BY timestamp DESC
+    ORDER BY timestamp ASC
     """, (session['user'],))
 
     data = cur.fetchall()
     conn.close()
 
-    return render_template("progress.html", data=data)
+    scores = [row[1] for row in data]
+    labels = list(range(1, len(scores)+1))
+
+    avg_score = round(sum(scores)/len(scores), 2) if scores else 0
+
+    # 🎯 ACCURACY (based on similarity)
+    accuracy = round(sum([row[2] for row in data]) / len(data), 2) if data else 0
+
+    # 🏆 BADGES
+    if avg_score >= 4:
+        badge = "🏆 Top Performer"
+    elif avg_score >= 3:
+        badge = "🥈 Good Learner"
+    else:
+        badge = "📘 Beginner"
+
+    return render_template("progress.html",
+                           data=data,
+                           scores=scores,
+                           labels=labels,
+                           avg_score=avg_score,
+                           accuracy=accuracy,
+                           badge=badge)
 
 # =========================
 # LEADERBOARD
@@ -337,6 +361,46 @@ def leaderboard():
 
     return render_template('leaderboard.html', data=data)
 
+
+@app.route('/download_report')
+def download_report():
+    if 'user' not in session:
+        return redirect('/login')
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+    SELECT question, score, similarity, feedback
+    FROM attempts
+    WHERE username=?
+    """, (session['user'],))
+
+    data = cur.fetchall()
+    conn.close()
+
+    file_path = "report.pdf"
+
+    doc = SimpleDocTemplate(file_path)
+    styles = getSampleStyleSheet()
+
+    content = []
+
+    content.append(Paragraph("Student Performance Report", styles['Title']))
+
+    for row in data:
+        text = f"""
+        Question: {row[0]} <br/>
+        Score: {row[1]} <br/>
+        Similarity: {row[2]}% <br/>
+        Feedback: {row[3]} <br/><br/>
+        """
+        content.append(Paragraph(text, styles['Normal']))
+
+    doc.build(content)
+
+    from flask import send_file
+    return send_file(file_path, as_attachment=True)
 # =========================
 if __name__ == '__main__':
     init_db()
