@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template, redirect, session
 import numpy as np
 import pickle
 import sqlite3
+import re
 
 from sentence_transformers import SentenceTransformer
 from gensim.models.doc2vec import Doc2Vec
@@ -62,6 +63,11 @@ def init_db():
     conn.commit()
     conn.close()
 
+def extract_keywords(text):
+    words = re.findall(r'\b\w+\b', text.lower())
+    stopwords = {'the','is','and','of','to','in','a','an','on','for','with','that'}
+    keywords = [w for w in words if w not in stopwords and len(w) > 3]
+    return list(set(keywords))
 # =========================
 # LOAD MODELS
 # =========================
@@ -285,11 +291,21 @@ def predict():
 
         conn.commit()
         conn.close()
+        correct_keywords = extract_keywords(correct_answer)
+        student_keywords = extract_keywords(student_answer)
+
+        matched = [w for w in student_keywords if w in correct_keywords]
+        missing = [w for w in correct_keywords if w not in student_keywords]
+
+        coverage = round((len(matched) / len(correct_keywords)) * 100, 2) if correct_keywords else 0
 
         return jsonify({
             "score": score,
             "similarity": similarity,
-            "feedback": feedback
+            "feedback": feedback,
+            "matched": matched[:5],
+            "missing": missing[:5],
+            "coverage": coverage
         })
 
     except Exception as e:

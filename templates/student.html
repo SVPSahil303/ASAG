@@ -91,53 +91,63 @@ function submitAnswer(q, c, i) {
 
         let result = document.getElementById("result" + i);
 
-        // 🎨 COLOR LOGIC
-        let color = "danger";
-        if(data.score >= 4) color = "success";
-        else if(data.score >= 3) color = "primary";
-        else if(data.score >= 2) color = "warning";
+let color = "danger";
+if(data.score >= 4) color = "success";
+else if(data.score >= 3) color = "primary";
+else if(data.score >= 2) color = "warning";
 
-        // 🧠 SMART FEEDBACK
-        let smartMsg = "";
-        if(data.similarity > 80)
-            smartMsg = "Excellent answer. Very close to expected.";
-        else if(data.similarity > 60)
-            smartMsg = "Good answer but missing some important points.";
-        else
-            smartMsg = "Answer is weak. Try adding key concepts.";
+// 🧠 AI FEEDBACK TEXT
+let aiMsg = "";
+if(data.coverage > 80)
+    aiMsg = "Excellent understanding. You covered most key concepts.";
+else if(data.coverage > 60)
+    aiMsg = "Good answer but missing some important keywords.";
+else
+    aiMsg = "Weak answer. Key concepts are missing.";
 
-        // ✅ UI
-        result.innerHTML = `
-        <div class="mt-3 p-3 border rounded bg-light">
+// Convert arrays to text
+let matched = data.matched.join(", ");
+let missing = data.missing.join(", ");
 
-            <div class="d-flex justify-content-between">
-                <span class="fw-bold">Score</span>
-                <span class="text-${color} fw-bold">${data.score}</span>
-            </div>
+result.innerHTML = `
+<div class="mt-3 p-3 border rounded bg-light">
 
-            <div class="progress mb-2" style="height:8px;">
-                <div class="progress-bar bg-${color}" style="width:${data.score * 20}%"></div>
-            </div>
+    <div class="d-flex justify-content-between">
+        <span class="fw-bold">Score</span>
+        <span class="text-${color} fw-bold">${data.score}</span>
+    </div>
 
-            <div class="d-flex justify-content-between">
-                <span>Similarity</span>
-                <span class="text-primary">${data.similarity}%</span>
-            </div>
+    <div class="progress mb-2" style="height:8px;">
+        <div class="progress-bar bg-${color}" style="width:${data.score * 20}%"></div>
+    </div>
 
-            <div class="mt-2">
-                <span class="badge bg-${color}">${data.feedback}</span>
-            </div>
+    <div class="d-flex justify-content-between">
+        <span>Similarity</span>
+        <span class="text-primary">${data.similarity}%</span>
+    </div>
 
-            <div class="mt-2 text-muted">
-                💡 ${smartMsg}
-            </div>
+    <div class="mt-2">
+        <span class="badge bg-${color}">${data.feedback}</span>
+    </div>
 
-            <div class="mt-2 small text-secondary">
-                <b>Expected Answer:</b> ${c}
-            </div>
+    <div class="mt-2 text-dark">
+        🤖 <b>AI Feedback:</b> ${aiMsg}
+    </div>
 
-        </div>
-        `;
+    <div class="mt-2 text-success">
+        ✅ <b>Matched Keywords:</b> ${matched || "None"}
+    </div>
+
+    <div class="mt-2 text-danger">
+        ❌ <b>Missing Keywords:</b> ${missing || "None"}
+    </div>
+
+    <div class="mt-2 text-muted">
+        📊 Coverage: ${data.coverage}%
+    </div>
+
+</div>
+`;
     });
 }
 </script>
