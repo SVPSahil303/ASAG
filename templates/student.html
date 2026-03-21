@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Page</title>
+</head>
+<body>
+
+<h2>Student Answer Submission</h2>
+
+{% for q in questions %}
+<div style="border:1px solid black; padding:10px; margin:10px;">
+
+    <p><b>Question:</b> {{ q[1] }}</p>
+
+    <textarea id="ans{{ loop.index }}"></textarea><br><br>
+
+    <button onclick="submitAnswer('{{ q[1] }}','{{ q[2] }}', {{ loop.index }})">
+        Submit Answer
+    </button>
+
+    <p id="result{{ loop.index }}"></p>
+
+</div>
+{% endfor %}
+
+<script>
+function submitAnswer(question, correct, index) {
+    let answer = document.getElementById("ans" + index).value;
+
+    if (answer.trim() === "") {
+        alert("Please write an answer");
+        return;
+    }
+
+    fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            answer: answer,
+            correct: correct,
+            question: question
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            document.getElementById("result" + index).innerText = data.error;
+            return;
+        }
+
+        document.getElementById("result" + index).innerText =
+            "Score: " + data.score +
+            " | Similarity: " + data.similarity + "%" +
+            " | Feedback: " + data.feedback;
+    });
+}
+</script>
+
+</body>
+</html>

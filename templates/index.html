@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ASAG Smart Grading</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h2>ASAG Smart Grading System</h2>
+
+<h3>Question:</h3>
+<p><b>{{ question }}</b></p>
+
+<h4>Write your answer:</h4>
+<textarea id="answer" rows="5" cols="60"></textarea>
+
+<br><br>
+<button onclick="submitAnswer()">Predict Score</button>
+
+<h3 id="result">Score: </h3>
+<h3 id="similarity">Similarity: </h3>
+<h3 id="feedback">Feedback: </h3>
+
+<p><b>Expected Answer:</b> {{ correct }}</p>
+
+<hr>
+
+<h3>Prediction Trend</h3>
+<canvas id="chart" width="400" height="200"></canvas>
+
+<script>
+let scores = [];
+
+function submitAnswer() {
+    let answer = document.getElementById("answer").value;
+
+    fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answer: answer })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.error) {
+            document.getElementById("result").innerText = "Error: " + data.error;
+            return;
+        }
+
+        let score = Number(data.score).toFixed(2);
+
+        document.getElementById("result").innerText = "Score: " + score;
+        document.getElementById("similarity").innerText = "Similarity: " + data.similarity + "%";
+        document.getElementById("feedback").innerText = "Feedback: " + data.feedback;
+
+        scores.push(score);
+        updateChart();
+    });
+}
+
+function updateChart() {
+    const ctx = document.getElementById('chart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: scores.map((_, i) => i+1),
+            datasets: [{
+                label: 'Predicted Scores',
+                data: scores
+            }]
+        }
+    });
+}
+</script>
+
+</body>
+</html>

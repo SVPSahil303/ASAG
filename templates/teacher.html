@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h2>Teacher Dashboard</h2>
+
+<form method="POST">
+    <label>Question:</label><br>
+    <input type="text" name="question" required><br><br>
+
+    <label>Correct Answer:</label><br>
+    <textarea name="answer" required></textarea><br><br>
+
+    <label>Max Marks:</label><br>
+    <input type="number" name="marks" value="5"><br><br>
+
+    <button type="submit">Add Question</button>
+</form>
+
+<br>
+<a href="/student">Go to Student Page</a>
+
+<h3>Top Students</h3>
+
+<table border="1">
+<tr>
+<th>Student</th>
+<th>Avg Score</th>
+</tr>
+
+{% for row in leaderboard %}
+<tr>
+<td>{{ row[0] }}</td>
+<td>{{ row[1] }}</td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>
