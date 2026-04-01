@@ -41,7 +41,11 @@ app.secret_key = "secret123"
 # NLP SETUP
 # =========================
 nltk.download('stopwords')
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except:
+    os.system("python -m spacy download en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 tool = language_tool_python.LanguageTool('en-US')
 stop_words = set(stopwords.words('english'))
 
@@ -570,4 +574,4 @@ def download_report():
 # =========================
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
